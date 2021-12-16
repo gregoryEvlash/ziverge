@@ -6,10 +6,10 @@ read start
 echo "input end time"
 read end
 
-sbt "run $start $end" &
-
 echo "input file path"
 read path
+
+sbt "run $start $end" &
 
 touch buffer
 ./$path > buffer
