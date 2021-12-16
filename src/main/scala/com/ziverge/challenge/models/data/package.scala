@@ -1,6 +1,5 @@
 package com.ziverge.challenge.models
 
-
 import java.time.Instant
 
 package object data {

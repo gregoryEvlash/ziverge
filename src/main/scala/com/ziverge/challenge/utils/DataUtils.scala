@@ -1,6 +1,6 @@
 package com.ziverge.challenge.utils
 
-import cats.{Applicative, Eq}
+import cats.Eq
 import cats.effect.Sync
 import cats.syntax.all._
 
@@ -15,7 +15,7 @@ object DataUtils {
 
 
   def extractDates[F[_]: Sync](args: List[String]): F[(Instant, Instant)] = {
-    for{
+    for {
       s <- Sync[F].delay(args.head).adaptErr(_ => new Throwable("No start date arg provided"))
       e <- Sync[F].delay(args.tail.head).adaptErr(_ => new Throwable("No end date arg provided"))
       start <- toInstant(s)

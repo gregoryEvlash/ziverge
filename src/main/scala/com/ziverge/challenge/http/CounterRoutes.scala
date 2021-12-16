@@ -1,16 +1,16 @@
 package com.ziverge.challenge.http
 
-import cats.effect.ConcurrentEffect
+import cats.effect.{ConcurrentEffect, Sync}
 import cats.implicits._
+import RestHelper._
 import com.ziverge.challenge.logging.LoggingF
 import com.ziverge.challenge.models.data.{EventType, Word}
 import com.ziverge.challenge.service.DataService
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{Request, Response}
 
-class CounterRoutes[F[_]](service: DataService[F])
-  (implicit val F: ConcurrentEffect[F])
-  extends Http4sDsl[F] with RestHelper[F] with LoggingF {
+class CounterRoutes[F[_]: ConcurrentEffect](service: DataService[F])
+  extends Http4sDsl[F] with LoggingF {
 
   private final val COUNT = "count"
   private final val ALL = "all"
@@ -38,7 +38,7 @@ class CounterRoutes[F[_]](service: DataService[F])
 }
 
 object CounterRoutes {
-  def apply[F[_]](service: DataService[F])(implicit F: ConcurrentEffect[F]): F[CounterRoutes[F]] = F.delay(new CounterRoutes(service))
+  def apply[F[_]: ConcurrentEffect](service: DataService[F]): F[CounterRoutes[F]] = Sync[F].delay(new CounterRoutes(service))
 }
 
 

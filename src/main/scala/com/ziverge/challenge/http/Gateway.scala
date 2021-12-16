@@ -10,7 +10,7 @@ import org.http4s.implicits._
 import org.http4s._
 
 class Gateway[F[_]: ConcurrentEffect: Timer](settings: HttpConf, counterRoutes: CounterRoutes[F], systemRoutes: SystemRoutes[F], blocker: Blocker)
-    extends AutoDerivation
+  extends AutoDerivation
     with Http4sDsl[F]
     with LoggingF {
 
@@ -29,8 +29,7 @@ class Gateway[F[_]: ConcurrentEffect: Timer](settings: HttpConf, counterRoutes: 
 }
 
 object Gateway {
-  def apply[F[_]: ConcurrentEffect : Timer]
-  (settings: HttpConf, counterRoutes: CounterRoutes[F], systemRoutes: SystemRoutes[F], blocker: Blocker)
-  (implicit F: Sync[F]): F[Gateway[F]] =
-    F.delay(new Gateway(settings, counterRoutes, systemRoutes, blocker: Blocker))
+  def apply[F[_]: ConcurrentEffect: Timer]
+  (settings: HttpConf, counterRoutes: CounterRoutes[F], systemRoutes: SystemRoutes[F], blocker: Blocker): F[Gateway[F]] =
+    Sync[F].delay(new Gateway(settings, counterRoutes, systemRoutes, blocker: Blocker))
 }

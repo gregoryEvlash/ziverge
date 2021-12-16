@@ -18,14 +18,15 @@ object DataProcessingService {
 
   def apply[F[_]: Concurrent](dataService: DataService[F], dataParser: DataParser[F, DataRecord]): F[DataProcessingService[F]] = Sync[F].delay {
 
-    (inputStream: fs2.Stream[F, String], start: Instant, end: Instant) => inputStream
-      .evalMapChunk(x => dataParser.parse(x))
-      .unNone
-      .groupAdjacentBy(_.timestamp)
-      .filter { case (data, _) => start.isBefore(data) && end.isAfter(data) }
-      .evalMapChunk {
-        case (_, chunk) => chunk.traverse(dataService.count).as(())
-      }
+    (inputStream: fs2.Stream[F, String], start: Instant, end: Instant) =>
+      inputStream
+        .evalMapChunk(x => dataParser.parse(x))
+        .unNone
+        .groupAdjacentBy(_.timestamp)
+        .filter { case (data, _) => start.isBefore(data) && end.isAfter(data) }
+        .evalMapChunk {
+          case (_, chunk) => chunk.traverse(dataService.count).as(())
+        }
 
   }
 }

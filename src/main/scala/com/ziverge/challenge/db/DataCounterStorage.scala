@@ -30,7 +30,6 @@ object DataCounterStorage {
     } yield {
       new DataCounterStorage[F] {
 
-        // todo comment about triemap and mutations
         override def inc(eventType: EventType, word: Word): F[Unit] = {
           keyMap.modify { map =>
             val wordMap = map.getOrElse(eventType, Map.empty[Word, Int])
