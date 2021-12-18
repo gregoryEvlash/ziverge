@@ -1,12 +1,42 @@
 package com.ziverge.challenge.utils
 
-import cats.Eq
+import cats.{Eq, Semigroup}
 import cats.effect.Sync
 import cats.syntax.all._
+import com.ziverge.challenge.models.data.{EventType, Word}
 
 import java.time.Instant
 
 object DataUtils {
+
+  type WordCounter = Map[Word, Int]
+  type FullMap = Map[EventType, WordCounter]
+
+  type Snapshot = (Instant, FullMap)
+
+  val smW = new Semigroup[WordCounter] {
+    override def combine(x: WordCounter, y: WordCounter): WordCounter = {
+      x.alignMergeWith(y)(_ + _)
+    }
+  }
+
+  val smF = new Semigroup[FullMap] {
+    override def combine(x: FullMap, y: FullMap): FullMap =
+      x.alignMergeWith(y)(Semigroup[WordCounter].combine)
+  }
+
+  val negateSMW = new Semigroup[WordCounter] {
+    override def combine(x: WordCounter, y: WordCounter): WordCounter = {
+      x.alignMergeWith(y)({
+        case (a, b) => if (a > b) a - b else 0
+      })
+    }
+  }
+
+  val negateSMF = new Semigroup[FullMap] {
+    override def combine(x: FullMap, y: FullMap): FullMap =
+      x.alignMergeWith(y)(Semigroup[WordCounter](negateSMW).combine)
+  }
 
   implicit val instantEq: Eq[Instant] = (x: Instant, y: Instant) => x.equals(y)
 
