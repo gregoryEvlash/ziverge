@@ -6,6 +6,7 @@ object Dependencies {
 
   val cats = "org.typelevel" %% "cats-core" % "2.6.1"
   val catsEffect = "org.typelevel" %% "cats-effect" % "2.5.4"
+  val mtl = "org.typelevel" %% "cats-mtl" % "1.2.1"
 
   val log = Seq(
     "io.chrisdavenport" %% "log4cats-core" % "1.0.1",
@@ -52,5 +53,5 @@ object Dependencies {
 
   )
 
-  val all = Seq(scalatest, cats, catsEffect) ++ log ++ json ++ http4s ++ config ++ fs2
+  val all = Seq(scalatest, cats, catsEffect, mtl) ++ log ++ json ++ http4s ++ config ++ fs2
 }

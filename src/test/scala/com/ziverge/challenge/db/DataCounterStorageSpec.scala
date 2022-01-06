@@ -1,28 +1,33 @@
 package com.ziverge.challenge.db
 
 import cats.effect.IO
-import cats.implicits.toTraverseOps
 import com.ziverge.challenge.TestDataUtil
+import com.ziverge.challenge.utils.DataUtils
+import com.ziverge.challenge.utils.DataUtils.makeMap
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
 class DataCounterStorageSpec extends AnyWordSpec with Matchers with TestDataUtil {
 
   "DataCounterStorage" should {
-
     "count events and words" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
-          _ <- testData.traverse(x => storage.inc(x.eventType, x.data))
-          _ <- storage.inc(eventA, wordI)
-          _ <- storage.inc(eventA, wordI)
+          storage <- DataCounterStorage.state[IO]()
+          full = DataUtils.count(testData)
 
-          found <- storage.all
+          _ <- storage.add(full)
+          _ <- storage.add(DataUtils.makeMap(recAI))
+          _ <- storage.add(DataUtils.makeMap(recAI))
+          _ <- storage.sub(DataUtils.makeMap(recAI))
+          _ <- storage.add(DataUtils.makeMap(recCK))
+          _ <- storage.sub(DataUtils.makeMap(recCK))
+
+          found <- storage.fetchALL
         } yield {
 
           found.size shouldBe 3
-          found.get(eventA).flatMap(_.get(wordI)) shouldBe Some(3)
+          found.get(eventA).flatMap(_.get(wordI)) shouldBe Some(2)
           found.get(eventA).flatMap(_.get(wordK)) shouldBe Some(1)
           found.get(eventB).flatMap(_.get(wordJ)) shouldBe Some(1)
           found.get(eventC).flatMap(_.get(wordK)) shouldBe Some(1)
@@ -37,10 +42,10 @@ class DataCounterStorageSpec extends AnyWordSpec with Matchers with TestDataUtil
     "search by event type" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
-          _ <- storage.inc(eventA, wordJ)
-          _ <- storage.inc(eventA, wordJ)
-          _ <- storage.inc(eventA, wordK)
+          storage <- DataCounterStorage.state[IO]()
+          _ <- storage.add(makeMap(record(eventA, wordJ)))
+          _ <- storage.add(makeMap(record(eventA, wordJ)))
+          _ <- storage.add(makeMap(record(eventA, wordK)))
           foundO <- storage.get(eventA)
           found = foundO.getOrElse(Map.empty)
         } yield {
@@ -58,10 +63,10 @@ class DataCounterStorageSpec extends AnyWordSpec with Matchers with TestDataUtil
     "search by event type and word" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
-          _ <- storage.inc(eventA, wordJ)
-          _ <- storage.inc(eventA, wordJ)
-          _ <- storage.inc(eventA, wordK)
+          storage <- DataCounterStorage.state[IO]()
+          _ <- storage.add(makeMap(record(eventA, wordJ)))
+          _ <- storage.add(makeMap(record(eventA, wordJ)))
+          _ <- storage.add(makeMap(record(eventA, wordK)))
           foundO <- storage.get(eventA, wordJ)
           found = foundO.getOrElse(-1)
         } yield {

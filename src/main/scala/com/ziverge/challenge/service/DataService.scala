@@ -3,12 +3,15 @@ package com.ziverge.challenge.service
 import cats.effect.Sync
 import cats.implicits.toFunctorOps
 import com.ziverge.challenge.db.DataCounterStorage
-import com.ziverge.challenge.models.data.{DataRecord, EventType, Word}
 import com.ziverge.challenge.models._
+import com.ziverge.challenge.models.data.{EventType, Word}
+import com.ziverge.challenge.utils.DataUtils.FullMap
 
 trait DataService[F[_]] {
 
-  def count(record: DataRecord): F[Unit]
+  def add(snapshot: FullMap): F[Unit]
+
+  def sub(snapshot: FullMap): F[Unit]
 
   def fetchAllInfo: F[ZivergeServiceResponse]
 
@@ -23,11 +26,14 @@ object DataService {
   def apply[F[_]: Sync](storage: DataCounterStorage[F]): F[DataService[F]] = Sync[F].delay {
     new DataService[F] {
 
-      override def count(record: DataRecord): F[Unit] =
-        storage.inc(record.eventType, record.data)
+      override def add(snapshot: FullMap): F[Unit] =
+        storage.add(snapshot)
+
+      override def sub(snapshot: FullMap): F[Unit] =
+        storage.sub(snapshot)
 
       override def fetchAllInfo: F[ZivergeServiceResponse] =
-        storage.all.map(x => Right(FullInfo(x)))
+        storage.fetchALL.map(x => Right(FullInfo(x)))
 
       override def getForEvent(eventType: EventType): F[ZivergeServiceResponse] =
         storage.get(eventType).map {

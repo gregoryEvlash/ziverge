@@ -4,10 +4,9 @@ import cats.{Parallel, Semigroup}
 import cats.effect.Concurrent
 import cats.effect.concurrent.Ref
 import cats.syntax.all._
-import com.ziverge.challenge.db.DataCounterStorage.WordCounter
-import com.ziverge.challenge.db.DataCounterStorage2.{Snapshot}
+import com.ziverge.challenge.db.DataCounterStorage2.Snapshot
 import com.ziverge.challenge.models.data.{EventType, Word}
-import com.ziverge.challenge.utils.DataUtils.{FullMap, negateSMF, smF}
+import com.ziverge.challenge.utils.DataUtils.{FullMap, WordCounter, negateSMF, smF}
 
 import java.time.{Duration, Instant}
 

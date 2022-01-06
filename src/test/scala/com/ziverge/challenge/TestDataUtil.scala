@@ -24,12 +24,16 @@ trait TestDataUtil {
   val wordK: Word = Word("K")
   val wordZ: Word = Word("Z")
 
+  def record(eventType: EventType, word: Word) = DataRecord(eventType, word, Instant.now())
+
+  val recAI = DataRecord(eventA, wordI, Instant.now())
+  val recCK = DataRecord(eventC, wordK, Instant.now())
 
   val testData = List(
-    DataRecord(eventA, wordI, Instant.now()),
-    DataRecord(eventB, wordJ, Instant.now()),
-    DataRecord(eventC, wordK, Instant.now()),
-    DataRecord(eventA, wordK, Instant.now()),
+    recAI,
+    record(eventB, wordJ),
+    recCK,
+    record(eventA, wordK),
   )
 
 

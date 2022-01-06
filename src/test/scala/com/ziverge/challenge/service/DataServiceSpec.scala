@@ -5,6 +5,7 @@ import cats.implicits.toTraverseOps
 import com.ziverge.challenge.TestDataUtil
 import com.ziverge.challenge.db.DataCounterStorage
 import com.ziverge.challenge.models.{FullInfo, NotFoundEvent}
+import com.ziverge.challenge.utils.DataUtils
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.{Exceptional, Succeeded}
@@ -16,9 +17,10 @@ class DataServiceSpec extends AnyWordSpec with Matchers with TestDataUtil {
     "fetch all data" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
+          storage <- DataCounterStorage.state[IO]()
           service <- DataService[IO](storage)
-          _ <- testData.traverse(x => storage.inc(x.eventType, x.data))
+          full = DataUtils.count(testData)
+          _ <- storage.add(full)
           result <- service.fetchAllInfo
 
         } yield {
@@ -40,9 +42,10 @@ class DataServiceSpec extends AnyWordSpec with Matchers with TestDataUtil {
     "respond typed in case not found event" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
+          storage <- DataCounterStorage.state[IO]()
           service <- DataService[IO](storage)
-          _ <- testData.traverse(x => storage.inc(x.eventType, x.data))
+          full = DataUtils.count(testData)
+          _ <- storage.add(full)
           result <- service.getForEvent(eventX)
         } yield {
           result match {
@@ -57,9 +60,10 @@ class DataServiceSpec extends AnyWordSpec with Matchers with TestDataUtil {
     "respond typed in case not found event and word" in {
       val result =
         for {
-          storage <- DataCounterStorage[IO]()
+          storage <- DataCounterStorage.state[IO]()
           service <- DataService[IO](storage)
-          _ <- testData.traverse(x => storage.inc(x.eventType, x.data))
+          full = DataUtils.count(testData)
+          _ <- storage.add(full)
           result <- service.getFor(eventA, wordZ)
         } yield {
           result match {

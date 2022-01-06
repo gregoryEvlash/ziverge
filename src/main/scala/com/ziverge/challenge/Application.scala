@@ -4,7 +4,6 @@ import cats.effect._
 import com.ziverge.challenge.config.{ConfigLoader, ConfigProvider}
 import com.ziverge.challenge.db.DataCounterStorage
 import com.ziverge.challenge.http.{CounterRoutes, Gateway, SystemRoutes}
-
 import com.ziverge.challenge.logging.LoggingF
 import com.ziverge.challenge.service._
 import fs2.concurrent.Queue
@@ -31,9 +30,9 @@ object Application extends IOApp with LoggingF {
       configs <- ConfigLoader.load[IO, ConfigProvider]
       q <- Queue.circularBuffer[IO, String](100)
       dataParser <- DataParser.record[IO]()
-      dataStorage <- DataCounterStorage.apply[IO]()
+      dataStorage <- DataCounterStorage.state[IO]()
       dataService <- DataService.apply(dataStorage)
-      dataProcessing <- DataProcessingService.apply(dataService, dataParser)
+      dataProcessing <- DataProcessingService.reactive(dataService, dataParser)
 
       fileRoute <- CounterRoutes(dataService)
       systemRoutes <- SystemRoutes[IO]

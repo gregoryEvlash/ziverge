@@ -7,7 +7,7 @@ this script start binary file with creation of buffer file for app reading.
 
 ## Data storage
 As a data storage is used plain immutable map. Because im not sure of event type range, i assumed it could be any string.
-So thats why storage has nested maps structure. Otherwise id make event types as defined sealed objects. 
+So that storage has nested maps structure. Otherwise id make event types as defined sealed objects. 
 This would simplify storage and as Word count map id use scala.TrieMap, it is more sufficient for search by string. 
 Main disadvantage of TrieMap - its mutable structure. So im unable to guaranteed proper work in case high load and storage structure with not predefined event types and mutable map.
 

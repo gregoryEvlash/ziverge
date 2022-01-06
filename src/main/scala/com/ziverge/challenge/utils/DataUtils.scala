@@ -3,7 +3,7 @@ package com.ziverge.challenge.utils
 import cats.{Eq, Semigroup}
 import cats.effect.Sync
 import cats.syntax.all._
-import com.ziverge.challenge.models.data.{EventType, Word}
+import com.ziverge.challenge.models.data.{DataRecord, EventType, Word}
 
 import java.time.Instant
 
@@ -38,11 +38,21 @@ object DataUtils {
       x.alignMergeWith(y)(Semigroup[WordCounter](negateSMW).combine)
   }
 
+  def makeMap(data: DataRecord): FullMap = {
+    Map(data.eventType -> Map(data.data -> 1))
+  }
+
+  def count(data: Seq[DataRecord]): Map[EventType, Map[Word, Int]] = {
+    data.foldLeft(Map.empty[EventType, Map[Word, Int]]) {
+      case (map, rec) => smF.combine(map, makeMap(rec))
+    }
+
+  }
+
   implicit val instantEq: Eq[Instant] = (x: Instant, y: Instant) => x.equals(y)
 
   def toInstant[F[_]: Sync](s: String): F[Instant] =
     Sync[F].delay(Instant.parse(s)).adaptErr(x => new Throwable(s"Provided date format is wrong: ($x)"))
-
 
   def extractDates[F[_]: Sync](args: List[String]): F[(Instant, Instant)] = {
     for {
